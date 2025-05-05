@@ -17,46 +17,46 @@ fn main() {
 fn test_binary_search_tree(){
     let rootlink: BstNodeLink = BstNode::new_bst_nodelink(15);
     rootlink.borrow_mut().add_left_child(&rootlink, 6);
-    rootlink.borrow_mut().add_right_child(&rootlink, 18);
+    rootlink.borrow_mut().add_right_child(&rootlink, 20);
 
     //add right subtree
-    let right_subtree: &Option<BstNodeLink> = &rootlink.borrow().right;
-    if let Some(right_tree_extract) = right_subtree {
-        right_tree_extract
-            .borrow_mut()
-            .add_left_child(right_tree_extract, 17);
-        right_tree_extract
-            .borrow_mut()
-            .add_right_child(right_tree_extract, 20);
-    }
+    // let right_subtree: &Option<BstNodeLink> = &rootlink.borrow().right;
+    // if let Some(right_tree_extract) = right_subtree {
+    //     right_tree_extract
+    //         .borrow_mut()
+    //         .add_left_child(right_tree_extract, 17);
+    //     right_tree_extract
+    //         .borrow_mut()
+    //         .add_right_child(right_tree_extract, 20);
+    // }
 
-    //add left subtree
-    let left_subtree: &Option<BstNodeLink> = &rootlink.borrow().left;
-    if let Some(left_tree_extract) = left_subtree {
-        left_tree_extract
-            .borrow_mut()
-            .add_left_child(left_tree_extract, 3);
-        left_tree_extract
-            .borrow_mut()
-            .add_right_child(left_tree_extract, 7);
+    // //add left subtree
+    // let left_subtree: &Option<BstNodeLink> = &rootlink.borrow().left;
+    // if let Some(left_tree_extract) = left_subtree {
+    //     left_tree_extract
+    //         .borrow_mut()
+    //         .add_left_child(left_tree_extract, 3);
+    //     left_tree_extract
+    //         .borrow_mut()
+    //         .add_right_child(left_tree_extract, 7);
 
-        //add left subtree terminal
-        let left_subtree_terminal = &left_tree_extract.borrow().left;
-        if let Some(terminal_left_tree_link) = left_subtree_terminal{
-            terminal_left_tree_link.borrow_mut().add_left_child(terminal_left_tree_link, 2);
-            terminal_left_tree_link.borrow_mut().add_right_child(terminal_left_tree_link, 4);
-        }
-        //add 2nd level right subtree of node 7
-        let second_right_subtree = &left_tree_extract.borrow().right;
-        if let Some(second_right_subtree_link) = second_right_subtree{
-            second_right_subtree_link.borrow_mut().add_right_child(second_right_subtree_link, 13);
+    //     //add left subtree terminal
+    //     let left_subtree_terminal = &left_tree_extract.borrow().left;
+    //     if let Some(terminal_left_tree_link) = left_subtree_terminal{
+    //         terminal_left_tree_link.borrow_mut().add_left_child(terminal_left_tree_link, 2);
+    //         terminal_left_tree_link.borrow_mut().add_right_child(terminal_left_tree_link, 4);
+    //     }
+    //     //add 2nd level right subtree of node 7
+    //     let second_right_subtree = &left_tree_extract.borrow().right;
+    //     if let Some(second_right_subtree_link) = second_right_subtree{
+    //         second_right_subtree_link.borrow_mut().add_right_child(second_right_subtree_link, 13);
 
-            let third_left_subtree = &second_right_subtree_link.borrow().right;
-            if let Some(third_left_subtree_link) = third_left_subtree{
-                third_left_subtree_link.borrow_mut().add_left_child(third_left_subtree_link, 9);
-            }
-        }
-    }
+    //         let third_left_subtree = &second_right_subtree_link.borrow().right;
+    //         if let Some(third_left_subtree_link) = third_left_subtree{
+    //             third_left_subtree_link.borrow_mut().add_left_child(third_left_subtree_link, 9);
+    //         }
+    //     }
+    // }
 
     //print the tree at this time
     let main_tree_path = "bst_graph.dot";
@@ -99,20 +99,88 @@ fn test_binary_search_tree(){
         22 // non-existent key
     ];
 
-    for &key in query_keys.iter() {
-        if let Some(node) = rootlink.borrow().tree_search(&key) {
-            print!("successor of node ({}) is ", key);
+    // for &key in query_keys.iter() {
+    //     if let Some(node) = rootlink.borrow().tree_search(&key) {
+    //         print!("successor of node ({}) is ", key);
 
-            if let Some(successor) = BstNode::tree_successor_simpler(&node) {
-                println!("{:?}", successor.borrow().key);
-            } else {
-                println!("not found");
-            }
+    //         if let Some(successor) = BstNode::tree_successor_simpler(&node) {
+    //             println!("{:?}", successor.borrow().key);
+    //         } else {
+    //             println!("not found");
+    //         }
+    //     } else {
+    //         println!("node with key of {} does not exist, failed to get successor", key)
+    //     }
+    // }
+
+    if let Some(left_tree_extract) = &rootlink.borrow().left {
+        left_tree_extract.borrow_mut().add_left_child(&left_tree_extract, 3);
+        left_tree_extract.borrow_mut().add_right_child(&left_tree_extract, 7);
+    }
+
+    println!("\n--- Testing tree_insert ---");
+
+    let inserted_values = [ 18, 3, 1];
+    for val in inserted_values {
+        BstNode::tree_insert(&rootlink, val);
+        println!("Inserted node with key {}", val);
+    }
+    
+    generate_dotfile_bst(&rootlink, "bst_after_insert.dot");
+
+    println!("\n--- Testing tree_delete ---");
+
+    let delete_keys = vec![6, 15, 20]; // Node yang akan dihapus
+    for &key in delete_keys.iter() {
+        let node = rootlink.borrow().tree_search(&key); // Cari node dengan key tertentu
+        if let Some(target_node) = node {
+            // Panggil tree_delete dengan node target
+            rootlink.borrow_mut().tree_delete(Some(target_node), key);
+            println!("Node with key {} has been deleted successfully!", key);
+            println!("The tree after deletion is: \n{:?}\n", rootlink);
+            let dot_filename = format!("bst_after_delete_{}.dot", key);
+            generate_dotfile_bst(&rootlink, &dot_filename);
         } else {
-            println!("node with key of {} does not exist, failed to get successor", key)
+            println!(
+                "Failed to delete node with key {}, because the node is not in the tree\n",
+                key
+            );
         }
     }
+    
+    println!("\n--- Testing transplant ---");
+
+    // Key dari node yang akan digantikan
+    let old_key = 7; // Anda dapat mengganti nilai ini untuk menguji key yang berbeda
+    
+    // Cari node dengan key `old_key`
+    let old_node = {
+        let root_ref = rootlink.borrow(); // Peminjaman immutable
+        root_ref.tree_search(&old_key)
+    }; // Peminjaman immutable dilepaskan di sini
+    
+    if let Some(old_node) = old_node {
+        // Buat node baru dengan key yang diinginkan
+        let new_key = 99; // Anda dapat mengganti nilai ini untuk key baru
+        let new_node = BstNode::new_bst_nodelink(new_key);
+    
+        // Lakukan transplant
+        rootlink.borrow_mut().transplant(&old_node, Some(new_node)); // Peminjaman mutable
+        println!(
+            "Transplanted node with key {} to new node with key {}",
+            old_key, new_key
+        );
+    
+        // Cetak struktur pohon setelah transplant
+        generate_dotfile_bst(&rootlink, "bst_after_transplant.dot");
+    } else {
+        println!(
+            "Node with key {} not found, skipping transplant test.",
+            old_key
+        );
+    }
 }
+
 
 #[allow(dead_code)]
 fn test_binary_tree() {
